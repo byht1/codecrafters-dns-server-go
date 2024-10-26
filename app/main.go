@@ -1,13 +1,37 @@
 package main
 
 import (
-	"encoding/binary"
 	"fmt"
 	"net"
+	"strings"
 )
 
-func getDNSId(value []byte) uint16 {
-	return binary.BigEndian.Uint16(value[0:2])
+func ParseDomain(data []byte) (string, int) {
+	var domainParts []string
+	position := 12 // DNS header is 12 bytes long
+
+	for {
+		// Read the length of the next label
+		labelLength := int(data[position])
+		if labelLength == 0 {
+			// End of the domain name (null byte)
+			position++ // Move past the null byte
+			break
+		}
+
+		// Extract the label and add it to the domain parts
+		position++
+		label := string(data[position : position+labelLength])
+		domainParts = append(domainParts, label)
+
+		// Move position to the next label
+		position += labelLength
+	}
+
+	// Join the labels with dots to form the full domain name
+	domain := strings.Join(domainParts, ".")
+
+	return domain, position
 }
 
 func main() {
@@ -39,9 +63,9 @@ func main() {
 		receivedData := string(buf[:size])
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
-		header := DNSSimpleHeaderResponse(getDNSId(buf))
+		response := DNSResponse(buf)
 
-		_, err = udpConn.WriteToUDP(header, source)
+		_, err = udpConn.WriteToUDP(response, source)
 		if err != nil {
 			fmt.Println("Failed to send response:", err)
 		}

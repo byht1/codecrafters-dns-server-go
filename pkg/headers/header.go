@@ -1,4 +1,4 @@
-package main
+package headers
 
 import (
 	"bytes"
@@ -25,16 +25,4 @@ func (h *DNSHeader) Serialize() []byte {
 	binary.Write(buf, binary.BigEndian, h.ARCount)
 
 	return buf.Bytes()
-}
-
-func DNSSimpleHeaderResponse(id uint16) []byte {
-	header := DNSHeader{
-		ID:      id,
-		Flags:   0x8180,
-		QDCount: 1,
-		ANCount: 1,
-		NSCount: 0,
-		ARCount: 0,
-	}
-	return header.Serialize()
 }
