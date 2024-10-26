@@ -1,9 +1,14 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
 	"net"
 )
+
+func getDNSId(value []byte) uint16 {
+	return binary.BigEndian.Uint16(value[0:2])
+}
 
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -34,10 +39,9 @@ func main() {
 		receivedData := string(buf[:size])
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
-		// Create an empty response
-		var response []byte
+		header := DNSSimpleHeaderResponse(getDNSId(buf))
 
-		_, err = udpConn.WriteToUDP(response, source)
+		_, err = udpConn.WriteToUDP(header, source)
 		if err != nil {
 			fmt.Println("Failed to send response:", err)
 		}
