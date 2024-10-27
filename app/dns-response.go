@@ -10,11 +10,18 @@ import (
 func DNSResponse(data []byte) (response []byte) {
 	id := helpers.GetDNSId(data)
 	flag := helpers.GetDNSFlags(data)
-	domain, _ := helpers.ParseDomain(data)
+	qbCount := helpers.GetQueryCount(data)
 
-	response = headers.DNSSimpleHeaderResponse(response, id, flag)
-	response = questions.NewDNSQuestion(response, domain)
-	response = answers.NewDNSAnswer(response, domain, "8.8.8.8")
+	response = headers.DNSSimpleHeaderResponse(response, id, flag, qbCount)
+
+	questionsReq, _ := questions.ParseQuestions(data, 12)
+	for _, question := range questionsReq {
+		response = append(response, question.Serialize()...)
+	}
+
+	for _, question := range questionsReq {
+		response = answers.NewDNSAnswer(response, question.Name, "8.8.8.8")
+	}
 
 	return
 }

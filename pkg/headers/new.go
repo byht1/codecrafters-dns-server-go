@@ -1,6 +1,6 @@
 package headers
 
-func DNSSimpleHeaderResponse(res []byte, id uint16, flag uint16) []byte {
+func DNSSimpleHeaderResponse(res []byte, id uint16, flag uint16, QDCount uint16) []byte {
 	opcode := (flag >> 11) & 0xF
 	rcode := flag & 0xF // 0xF = 0000 1111
 	if opcode != 0 {
@@ -9,8 +9,8 @@ func DNSSimpleHeaderResponse(res []byte, id uint16, flag uint16) []byte {
 
 	header := DNSHeader{
 		ID:      id,
-		QDCount: 1,
-		ANCount: 1,
+		QDCount: QDCount,
+		ANCount: QDCount,
 		NSCount: 0,
 		ARCount: 0,
 		Flags: HeaderFlags{

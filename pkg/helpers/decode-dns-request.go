@@ -13,30 +13,21 @@ func GetDNSFlags(data []byte) uint16 {
 	return binary.BigEndian.Uint16(data[2:4])
 }
 
-func ParseDomain(data []byte) (string, int) {
-	var domainParts []string
-	position := 12 // DNS header is 12 bytes long
+func GetQueryCount(data []byte) uint16 {
+	return binary.BigEndian.Uint16(data[4:6])
+}
 
+func ParseName(data []byte, offset int) (string, int, error) {
+	var name string
 	for {
-		// Read the length of the next label
-		labelLength := int(data[position])
-		if labelLength == 0 {
-			// End of the domain name (null byte)
-			position++ // Move past the null byte
-			break
+		length := data[offset]
+		offset++
+		if length == 0 {
+			break // End of the name
 		}
-
-		// Extract the label and add it to the domain parts
-		position++
-		label := string(data[position : position+labelLength])
-		domainParts = append(domainParts, label)
-
-		// Move position to the next label
-		position += labelLength
+		name += string(data[offset:offset+int(length)]) + "."
+		offset += int(length)
 	}
-
-	// Join the labels with dots to form the full domain name
-	domain := strings.Join(domainParts, ".")
-
-	return domain, position
+	name = strings.TrimSuffix(name, ".") // Remove the trailing dot
+	return name, offset, nil
 }
