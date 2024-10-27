@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/codecrafters-io/dns-server-starter-go/pkg/answers"
 	"github.com/codecrafters-io/dns-server-starter-go/pkg/headers"
 	"github.com/codecrafters-io/dns-server-starter-go/pkg/helpers"
 	"github.com/codecrafters-io/dns-server-starter-go/pkg/questions"
@@ -12,6 +13,7 @@ func DNSResponse(data []byte) (response []byte) {
 
 	response = headers.DNSSimpleHeaderResponse(response, id)
 	response = questions.NewDNSQuestion(response, domain)
+	response = answers.NewDNSAnswer(response, domain, "8.8.8.8")
 
 	return
 }
