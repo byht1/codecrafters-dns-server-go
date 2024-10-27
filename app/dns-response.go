@@ -9,9 +9,10 @@ import (
 
 func DNSResponse(data []byte) (response []byte) {
 	id := helpers.GetDNSId(data)
+	flag := helpers.GetDNSFlags(data)
 	domain, _ := helpers.ParseDomain(data)
 
-	response = headers.DNSSimpleHeaderResponse(response, id)
+	response = headers.DNSSimpleHeaderResponse(response, id, flag)
 	response = questions.NewDNSQuestion(response, domain)
 	response = answers.NewDNSAnswer(response, domain, "8.8.8.8")
 

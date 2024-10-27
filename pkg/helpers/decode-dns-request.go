@@ -9,6 +9,10 @@ func GetDNSId(data []byte) uint16 {
 	return binary.BigEndian.Uint16(data[0:2])
 }
 
+func GetDNSFlags(data []byte) uint16 {
+	return binary.BigEndian.Uint16(data[2:4])
+}
+
 func ParseDomain(data []byte) (string, int) {
 	var domainParts []string
 	position := 12 // DNS header is 12 bytes long
