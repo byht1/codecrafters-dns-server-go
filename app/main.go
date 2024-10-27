@@ -1,11 +1,25 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
+	"os"
+	"time"
 )
 
 func main() {
+	fmt.Println(os.Args)
+	resolver := &net.Resolver{
+		PreferGo: true,
+		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := net.Dialer{
+				Timeout: time.Millisecond * time.Duration(10000),
+			}
+			return d.DialContext(ctx, network, os.Args[2])
+		},
+	}
+
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
@@ -34,7 +48,7 @@ func main() {
 		receivedData := string(buf[:size])
 		fmt.Printf("Received %d bytes from %s: %s\n", size, source, receivedData)
 
-		response := DNSResponse(buf)
+		response := DNSResponse(buf, resolver)
 
 		_, err = udpConn.WriteToUDP(response, source)
 		if err != nil {
